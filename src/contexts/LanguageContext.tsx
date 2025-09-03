@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { translateText } from '@/lib/translationService';
 
 type Language = 'en' | 'hi';
 
@@ -6,6 +7,8 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  translateDynamic: (text: string) => Promise<string>;
+  isTranslating: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -62,6 +65,7 @@ const translations = {
     'tip5Desc': 'Invest in efficient irrigation systems to reduce water costs and improve yields.',
     'tip6Title': 'Market Research',
     'tip6Desc': 'Stay informed about market prices and demand to time your sales optimally.',
+    'translation': 'Translation',
   },
   hi: {
     // Navigation & Auth
@@ -113,18 +117,35 @@ const translations = {
     'tip5Desc': 'पानी की लागत कम करने और उत्पादन बढ़ाने के लिए कुशल सिंचाई प्रणाली में निवेश करें।',
     'tip6Title': 'बाजार अनुसंधान',
     'tip6Desc': 'अपनी बिक्री का सही समय जानने के लिए बाजार की कीमतों और मांग की जानकारी रखें।',
+    'translation': 'अनुवाद',
   }
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const t = (key: string): string => {
     return translations[language][key as keyof typeof translations['en']] || key;
   };
 
+  const translateDynamic = async (text: string): Promise<string> => {
+    if (language === 'en') return text;
+    
+    setIsTranslating(true);
+    try {
+      const result = await translateText({ text, targetLang: language });
+      return result.translatedText;
+    } catch (error) {
+      console.error('Translation failed:', error);
+      return text;
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, translateDynamic, isTranslating }}>
       {children}
     </LanguageContext.Provider>
   );

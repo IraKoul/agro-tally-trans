@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
+import TranslationDemo from '@/components/TranslationDemo';
 import { 
   Lightbulb, 
   Sprout, 
@@ -107,6 +108,9 @@ export default function Tips() {
           </CardDescription>
         </CardHeader>
       </Card>
+
+      {/* Translation Demo */}
+      <TranslationDemo />
 
       {/* Tips Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
